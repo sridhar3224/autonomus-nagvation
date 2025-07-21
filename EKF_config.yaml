@@ -1,0 +1,134 @@
+# This is the configuration file for drone sensor fusion
+# Format V1.0
+
+# Initial state of the drone
+InitState:
+  Position: # in meter
+    x :   0.9
+    y :   0.42
+    z :  -0.2
+  Attitude: # in rad
+    Yaw : 0.0
+    Pitch : 0.0
+    Roll : 0.0
+
+# UWB Tag configurations
+TagConfig:
+  # Used to convert the coordinate data into meter
+  UnitFactor : 0.001 
+  # Type of frame used for the following position data. Should be FRD
+  # (Forward-Right-Down) or FLU (Forward-Left-Up)
+  Frame: FRD 
+  # Tag position in the vehicle body (in mm). Multiple tags can be
+  # defined
+  TagPosition: 
+    Tag1 :     
+      ID : T4  # tag id
+      Coordinate:
+        x :  -38.5
+        y :  -19.2
+        z :  -239
+# File name for ArUco marker positions and size
+MarkerFile : 'marker_state.pk'
+# Camera extrinsic calibration file name
+ExtrinsicFile : camera_data.pk
+# Camera intrinsic calibration file name
+IntrinsicFile : camera_data.pk
+# List of camera ID numbers
+CameraNum : ['09', '10']
+# Settings for adding off-line data. Only used for off-line application
+
+# Bag file name
+BagFile: 'drone_flight_1.bag'
+# ArUco related settings
+ArucoOffline:
+  # True = add ArUco data to the filter
+  AddData: True
+  # File name of pickle file contains marker detection data for each
+  # camera.  The key should be in the format of 'FileC'+Camera ID
+  # number.
+  FileC09: 'aruco_09.pk'
+  FileC10: 'aruco_10.pk'
+
+# Core settings of the EKF
+FilterSetting:
+  # The variance of data is grouped into the following segment. Most of
+  # them represent sensor noise level, while the last two are used to
+  # set the initial covariance of the system states
+  Sigma:
+    # All UWB rangers (m)
+    Uwb: 0.20
+    # IMU rotation speed (rad/s)
+    ImuOmega: 0.2
+    # IMU linear acceleration (m/s^2)
+    ImuAcc: 0.5
+    # Camera pixel coordinates (pixel)
+    Camera: 2.0
+    # Marker in drone body frame (m)
+    Mib: 0.5
+    # Linear term for MIB variance regarding to the distance between a
+    # marker and the drone. (m)
+    KMib: 0.01
+    # Yaw angle (rad)
+    Yaw: 0.05
+    # DJI Altitude (m)
+    Alt: 0.03
+    # SLAM altitude (z-coordinate)
+    SlamAlt: 0.1
+    # SLAM x- and y-coordinates
+    SlamXy: 0.05
+    # SLAM Speed
+    SlamSpd: 0.1
+    # Initial SLAM x-potion
+    SlamX0: 0.01
+    # Initial SLAM y-potion
+    SlamY0: 0.01
+    # DEV---------
+    # Initial SLAM z-potion
+    SlamZ0: 0.0005
+    # Initial SLAM Ref pitch angle
+    SlamPitch0: 0.1
+    # Initial SLAM Ref roll angle
+    SlamRoll0: 0.1
+    # Initial Yaw bias angle
+    YawBias0: 0.05
+
+  # Delay of UWB data (ms)
+  UwbDelayMS: 100.0
+  # Camera data delay (ms)
+  CameraDelayMS: 22.0
+  # Yaw angle between the local frame and the local magnetic filed. Used
+  # to convert the DJI yaw data to local frame
+  DjiYawShiftDeg: 0.0
+  # IMU installation angles on the drone
+  ImuAngleDeg:
+    Yaw: 0.0
+    Pitch: -1.58
+    Roll: -2.40
+  # Shifting angle between local frame and the SLAM frame
+  SlamYawShiftDeg: 180.0
+  # SLAM altitude shifting due to installation and initialization
+  # position
+  SlamAltDelta: 0.229
+  # Constant values for the initial x-position of SLAM frame 
+  SlamX0: 0.728
+  # Constant values for the initial y-position of SLAM frame 
+  SlamY0: 0.362
+  # DEV----------------
+  # Constant values for the initial z-position of SLAM frame 
+  SlamZ0: -0.2
+  # Constant values for the initial pitch of SLAM frame 
+  SlamPitch0: 0.0
+  # Constant values for the initial roll of SLAM frame 
+  SlamRoll0: 0.0
+  # -------------------
+  # The SLAM position and orientation in drone body frame (FRD)
+  SlamPoseInDrone:
+    x: 0.15
+    y: 0.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+    roll: 0.0
+ 
+

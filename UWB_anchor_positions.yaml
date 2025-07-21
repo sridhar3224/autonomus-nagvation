@@ -1,0 +1,49 @@
+# UWB anchor position configuration file
+# Format V1.0 
+
+# Anchors configurations
+AnchorConfig:
+  # Used to convert the coordinate data into meter
+  UnitFactor: 0.001
+  # Type of frame used for the following position data. Should be ENU
+  # (East-North-Up) or NED (North-East-Down)
+  Frame: ENU
+  # Anchor position in the ground reference. Multiple anchors can be
+  # defined
+  AnchorPosition:
+    Anchor1:
+      ID: A0
+      Coordinate:
+        x :  2818.6
+        y :  5005.2
+        z :  1380.7
+    Anchor2:
+      ID: A1
+      Coordinate:
+        x : -2423.6
+        y :  4753.6
+        z :  1388.8
+    Anchor3:
+      ID: A2
+      Coordinate :
+        x : -2107.0
+        y : -4021.5
+        z :  1373.5
+    Anchor4:
+      ID: A3
+      Coordinate :
+        x :  2690.0
+        y : -3939.4
+        z :  1416.1
+    Anchor5:
+      ID: A4
+      Coordinate :
+        x :  3925.9
+        y :    18.2
+        z :  1296.3
+    Anchor6:
+      ID: A5
+      Coordinate :
+        x : -3698.4
+        y :   -19.6
+        z :   165.8

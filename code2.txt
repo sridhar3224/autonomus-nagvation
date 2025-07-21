@@ -1,0 +1,36 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.decomposition import TruncatedSVD
+
+
+df = pd.read_csv('preprocessed_uav_navigation_dataset.csv')
+
+print("Dataset Overview:")
+print(df.info())
+# Define sensor data matrix (trajectory-related features)
+sensor_columns = ['latitude', 'longitude', 'altitude', 
+                  'imu_acc_x', 'imu_acc_y', 'imu_acc_z', 
+                  'imu_gyro_x', 'imu_gyro_y', 'imu_gyro_z',
+                  'lidar_distance', 'speed']
+A = df[sensor_columns].values
+# Apply Singular Value Decomposition (SVD)
+svd = TruncatedSVD(n_components=3)  # Keeping only the top 3 components
+A_reduced = svd.fit_transform(A)
+A_reconstructed = svd.inverse_transform(A_reduced)
+
+# Convert back to DataFrame
+df_svd = pd.DataFrame(A_reconstructed, columns=sensor_columns)
+# Visualizing the original vs. smoothed trajectory
+plt.figure(figsize=(10, 6))
+plt.plot(df['latitude'], df['longitude'], label='Original Trajectory', linestyle='dotted', alpha=0.6)
+plt.plot(df_svd['latitude'], df_svd['longitude'], label='Smoothed Trajectory (SVD)', linewidth=2)
+plt.xlabel("Latitude")
+plt.ylabel("Longitude")
+plt.title("UAV Trajectory Before and After SVD-based Sensor Fusion")
+plt.legend()
+plt.grid()
+plt.show()
+
+# Save the denoised trajectory
+df_svd.to_csv('svd_denoised_uav_trajectory.csv', index=False)

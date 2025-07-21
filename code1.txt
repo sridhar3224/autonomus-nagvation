@@ -1,0 +1,52 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.decomposition import TruncatedSVD
+from scipy.spatial import KDTree
+df = pd.read_csv('uav_navigation_dataset.csv')
+# Define sensor data matrix (trajectory-related features)
+sensor_columns = ['latitude', 'longitude', 'altitude', 
+                  'imu_acc_x', 'imu_acc_y', 'imu_acc_z', 
+                  'imu_gyro_x', 'imu_gyro_y', 'imu_gyro_z',
+                  'lidar_distance', 'speed']
+A = df[sensor_columns].values
+# Apply Singular Value Decomposition (SVD) for trajectory smoothing
+svd = TruncatedSVD(n_components=3)  # Keeping only the top 3 components
+A_reduced = svd.fit_transform(A)
+A_reconstructed = svd.inverse_transform(A_reduced)
+# Convert back to DataFrame
+df_svd = pd.DataFrame(A_reconstructed, columns=sensor_columns)
+# Obstacle Detection & Avoidance Enhancement
+obstacle_threshold = df['lidar_distance'].quantile(0.1)  # Define obstacle detection threshold
+
+df['obstacle_detected'] = df['lidar_distance'] < obstacle_threshold
+# Identify risk zones using KDTree
+obstacle_positions = df[df['obstacle_detected']][['latitude', 'longitude']].values
+kdtree = KDTree(obstacle_positions)
+df['risk_zone'] = [len(kdtree.query_ball_point((lat, lon), 0.0005)) > 0 for lat, lon in zip(df['latitude'], df['longitude'])]
+# Real-Time Path Planning Optimization
+# Using speed and IMU data to adjust flight path dynamically
+optimal_speed_threshold = df['speed'].quantile(0.9)
+df['optimal_path'] = (df['speed'] > optimal_speed_threshold) & (~df['obstacle_detected'])
+df_obstacles = df[df['obstacle_detected'] == 1]
+if df_obstacles.empty:
+    print("⚠️ No obstacles detected in dataset!")
+
+# Visualizing the original vs. smoothed trajectory with obstacles
+plt.figure(figsize=(10, 6))
+
+plt.plot(df['latitude'], df['longitude'], 'b--', label='Original Trajectory', linewidth=2, alpha=0.7)
+plt.scatter(df_obstacles['latitude'], df_obstacles['longitude'], color='red', marker='o', label='Obstacles', s=80, alpha=0.9)
+
+
+plt.xlabel("Latitude")
+plt.ylabel("Longitude")
+plt.title("UAV Trajectory with Sensor Fusion, Obstacle Detection & Path Optimization")
+plt.legend()
+plt.grid()
+plt.show()
+plt.plot(df_svd['latitude'], df_svd['longitude'], color='orange', label='Smoothed Trajectory (SVD)', linewidth=2)
+# Save the processed data
+df.to_csv('uav_navigation_enhanced.csv', index=False)
+
+df_svd.to_csv('svd_denoised_uav_trajectory.csv', index=False)
